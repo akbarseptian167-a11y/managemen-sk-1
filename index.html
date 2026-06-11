@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kasir Toko</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- SIDEBAR KIRI -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <span class="sidebar-title">Kasir</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-btn active" data-page="kasir">Kasir</button>
+      <button class="nav-btn" data-page="transaksi">Transaksi</button>
+      <button class="nav-btn" data-page="saldo">Saldo</button>
+      <button class="nav-btn nav-btn-tutup" data-page="tutup">Tutup Toko</button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="btn-sheet" id="btnBukaSheet">Buka Sheet</button>
+      <button class="btn-sheet" id="btnEditConfig" style="margin-top:6px;">Edit Konfigurasi</button>
+    </div>
+  </aside>
+
+  <!-- KONTEN KANAN -->
+  <main class="main-content">
+
+    <!-- ===== HALAMAN KASIR ===== -->
+    <section class="page active" id="page-kasir">
+      <div class="page-header">
+        <h1>Kasir</h1>
+        <span class="tanggal" id="tanggalHari"></span>
+      </div>
+
+      <!-- Ringkasan Saldo -->
+      <div class="saldo-strip">
+        <div class="saldo-item">
+          <span class="saldo-label">Fazzpay</span>
+          <span class="saldo-val" id="strip-fazzpay">Rp 0</span>
+        </div>
+        <div class="saldo-item">
+          <span class="saldo-label">Pasar</span>
+          <span class="saldo-val" id="strip-pasar">Rp 0</span>
+        </div>
+        <div class="saldo-item">
+          <span class="saldo-label">Agen</span>
+          <span class="saldo-val" id="strip-agen">Rp 0</span>
+        </div>
+      </div>
+
+      <!-- Form Kasir -->
+      <div class="card form-card">
+        <div class="form-grid">
+
+          <div class="form-group">
+            <label>Kategori</label>
+            <div class="btn-group-kategori" id="btnKategori">
+              <button class="btn-kat" data-kat="esteh">Es Teh</button>
+              <button class="btn-kat" data-kat="elektrik">Elektrik</button>
+              <button class="btn-kat" data-kat="acc">ACC</button>
+              <button class="btn-kat" data-kat="transfer">Transfer</button>
+              <button class="btn-kat" data-kat="voucher">Voucher</button>
+            </div>
+          </div>
+
+          <!-- Metode Saldo (muncul untuk Transfer & Elektrik) -->
+          <div class="form-group hidden" id="grpMetode">
+            <label>Metode Saldo Modal</label>
+            <div class="btn-group-metode" id="btnMetode">
+              <!-- diisi JS sesuai kategori -->
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Harga Modal <span class="hint" id="hintModal"></span></label>
+            <input type="number" id="inputModal" placeholder="0" min="0" />
+          </div>
+
+          <div class="form-group">
+            <label>Harga Jual</label>
+            <input type="number" id="inputJual" placeholder="0" min="0" />
+          </div>
+
+          <div class="form-group">
+            <label>Jumlah Beli</label>
+            <input type="number" id="inputJumlah" placeholder="1" min="1" value="1" />
+          </div>
+
+          <!-- Preview Profit -->
+          <div class="profit-preview" id="profitPreview">
+            <span>Profit per item: <strong id="previewProfit">Rp 0</strong></span>
+            <span>Total Profit: <strong id="previewTotalProfit">Rp 0</strong></span>
+          </div>
+
+        </div>
+
+        <button class="btn-simpan" id="btnSimpan">Simpan Penjualan</button>
+      </div>
+
+      <!-- Ringkasan Hari Ini -->
+      <div class="stat-row">
+        <div class="stat-card">
+          <span class="stat-label">Total Profit</span>
+          <span class="stat-val green" id="statProfit">Rp 0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total Penjualan</span>
+          <span class="stat-val" id="statJual">Rp 0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Total Modal</span>
+          <span class="stat-val red" id="statModal">Rp 0</span>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Jml Transaksi</span>
+          <span class="stat-val" id="statJumlahTrx">0</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== HALAMAN TRANSAKSI ===== -->
+    <section class="page" id="page-transaksi">
+      <div class="page-header">
+        <h1>Riwayat Transaksi</h1>
+        <span class="tanggal" id="tanggalTrx"></span>
+      </div>
+
+      <div class="filter-bar">
+        <select id="filterKat">
+          <option value="">Semua Kategori</option>
+          <option value="esteh">Es Teh</option>
+          <option value="elektrik">Elektrik</option>
+          <option value="acc">ACC</option>
+          <option value="transfer">Transfer</option>
+          <option value="voucher">Voucher</option>
+        </select>
+      </div>
+
+      <div id="listTransaksi" class="trx-list">
+        <div class="empty-state">Belum ada transaksi hari ini.</div>
+      </div>
+    </section>
+
+    <!-- ===== HALAMAN SALDO ===== -->
+    <section class="page" id="page-saldo">
+      <div class="page-header">
+        <h1>Manajemen Saldo</h1>
+      </div>
+
+      <!-- Kartu Saldo -->
+      <div class="saldo-cards">
+        <div class="saldo-card fazzpay">
+          <span class="sc-label">Fazzpay</span>
+          <span class="sc-val" id="sc-fazzpay">Rp 0</span>
+          <span class="sc-sub">untuk Transfer</span>
+        </div>
+        <div class="saldo-card pasar">
+          <span class="sc-label">Pasar</span>
+          <span class="sc-val" id="sc-pasar">Rp 0</span>
+          <span class="sc-sub">untuk Elektrik</span>
+        </div>
+        <div class="saldo-card agen">
+          <span class="sc-label">Agen</span>
+          <span class="sc-val" id="sc-agen">Rp 0</span>
+          <span class="sc-sub">untuk Elektrik</span>
+        </div>
+      </div>
+
+      <!-- Form Tambah Saldo -->
+      <div class="card form-card">
+        <h3>Tambah Saldo</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Pilih Saldo</label>
+            <select id="pilihanSaldo">
+              <option value="fazzpay">Fazzpay</option>
+              <option value="pasar">Pasar</option>
+              <option value="agen">Agen</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Jumlah Tambah</label>
+            <input type="number" id="inputTambahSaldo" placeholder="0" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Keterangan (opsional)</label>
+            <input type="text" id="inputKetSaldo" placeholder="mis. Top up via transfer" />
+          </div>
+        </div>
+        <button class="btn-simpan" id="btnTambahSaldo">Tambah Saldo</button>
+      </div>
+
+      <!-- Riwayat Tambah Saldo -->
+      <div class="card">
+        <h3>Riwayat Tambah Saldo</h3>
+        <div id="listSaldo" class="trx-list">
+          <div class="empty-state">Belum ada riwayat tambah saldo.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== HALAMAN TUTUP TOKO ===== -->
+    <section class="page" id="page-tutup">
+      <div class="page-header">
+        <h1>Tutup Toko</h1>
+        <span class="tanggal" id="tanggalTutup"></span>
+      </div>
+
+      <!-- Ringkasan Hari Ini -->
+      <div class="tutup-summary">
+        <div class="ts-card">
+          <span class="ts-label">Total Profit Hari Ini</span>
+          <span class="ts-val green" id="ts-profit">Rp 0</span>
+        </div>
+        <div class="ts-card">
+          <span class="ts-label">Total Penjualan</span>
+          <span class="ts-val" id="ts-jual">Rp 0</span>
+        </div>
+        <div class="ts-card">
+          <span class="ts-label">Total Modal Keluar</span>
+          <span class="ts-val red" id="ts-modal">Rp 0</span>
+        </div>
+        <div class="ts-card">
+          <span class="ts-label">Jumlah Transaksi</span>
+          <span class="ts-val" id="ts-trx">0</span>
+        </div>
+      </div>
+
+      <div class="tutup-saldo">
+        <h3>Sisa Saldo Akhir</h3>
+        <div class="saldo-cards">
+          <div class="saldo-card fazzpay">
+            <span class="sc-label">Fazzpay</span>
+            <span class="sc-val" id="ts-fazzpay">Rp 0</span>
+          </div>
+          <div class="saldo-card pasar">
+            <span class="sc-label">Pasar</span>
+            <span class="sc-val" id="ts-pasar">Rp 0</span>
+          </div>
+          <div class="saldo-card agen">
+            <span class="sc-label">Agen</span>
+            <span class="sc-val" id="ts-agen">Rp 0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card tutup-warning">
+        <p>Setelah tutup toko, semua data penjualan hari ini akan dikirim ke sheet <strong>Tutup Toko</strong> dan data transaksi di website akan direset. Pastikan semua transaksi sudah benar.</p>
+        <button class="btn-tutup" id="btnTutupToko">Tutup Toko Sekarang</button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL KONFIGURASI SHEET (muncul pertama kali) -->
+  <div class="modal-overlay hidden" id="modalConfig">
+    <div class="modal-box">
+      <h2>Konfigurasi Sheet</h2>
+      <p>URL SheetDB sudah terhubung. Masukkan link Google Sheet kamu untuk tombol "Buka Sheet".</p>
+      <div class="form-group">
+        <label>URL Google Sheet (opsional)</label>
+        <input type="text" id="cfgSheetLink" placeholder="https://docs.google.com/spreadsheets/d/..." />
+      </div>
+      <div class="api-info">
+        <span>Sheet Penjualan: <strong>Terhubung</strong></span>
+        <span>Sheet Tutup Toko: <strong>Terhubung</strong></span>
+      </div>
+      <button class="btn-simpan" id="btnSimpanConfig">Simpan & Mulai</button>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFIKASI -->
+  <div class="toast" id="toast"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
